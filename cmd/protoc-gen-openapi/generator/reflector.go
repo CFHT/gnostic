@@ -127,6 +127,11 @@ func (r *OpenAPIv3Reflector) schemaReferenceForMessage(message protoreflect.Mess
 func (r *OpenAPIv3Reflector) schemaOrReferenceForMessage(message protoreflect.MessageDescriptor) *v3.SchemaOrReference {
 	typeName := r.fullMessageTypeName(message)
 
+	if *r.conf.KeepWrapped {
+		// Always jump to default case
+		typeName = ""
+	}
+
 	switch typeName {
 
 	case ".google.api.HttpBody":

@@ -45,6 +45,7 @@ type Configuration struct {
 	DefaultResponse *bool
 	OutputMode      *string
 	Int64AsString   *bool
+	KeepWrapped     *bool
 }
 
 const (

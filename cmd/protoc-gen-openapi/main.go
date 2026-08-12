@@ -39,6 +39,7 @@ func main() {
 		DefaultResponse: flags.Bool("default_response", true, `add default response. If "true", automatically adds a default response to operations which use the google.rpc.Status message. Useful if you use envoy or grpc-gateway to transcode as they use this type for their default error responses.`),
 		OutputMode:      flags.String("output_mode", "merged", `output generation mode. By default, a single openapi.yaml is generated at the out folder. Use "source_relative' to generate a separate '[inputfile].openapi.yaml' next to each '[inputfile].proto'.`),
 		Int64AsString:   flags.Bool("int64_as_string", true, `serialize 64-bit integer types as string. If false, will serialize as integer which is incompatible with the official proto JSON serialization.`),
+		KeepWrapped:     flags.Bool("keep_wrapped", false, `serialize wrapped types as-is. If true, will serialize in a way incompatible with the official proto JSON serialization.`),
 	}
 
 	opts := protogen.Options{
