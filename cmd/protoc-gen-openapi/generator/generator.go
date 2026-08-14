@@ -46,6 +46,7 @@ type Configuration struct {
 	OutputMode      *string
 	Int64AsString   *bool
 	KeepWrapped     *bool
+	CamelCase       *bool
 }
 
 const (

@@ -68,7 +68,7 @@ func (r *OpenAPIv3Reflector) formatMessageName(message protoreflect.MessageDescr
 		}
 	}
 
-	if *r.conf.Naming == "json" {
+	if *r.conf.CamelCase {
 		if len(name) > 1 {
 			name = strings.ToUpper(name[0:1]) + name[1:]
 		}
@@ -86,12 +86,37 @@ func (r *OpenAPIv3Reflector) formatMessageName(message protoreflect.MessageDescr
 	return name
 }
 
+// Copied in from generate-gnostic/generate-compiler.go
+// Returns a "snake case" form of a camel-cased string.
+func camelCaseToSnakeCase(input string) string {
+	out := ""
+	for index, runeValue := range input {
+		//fmt.Printf("%#U starts at byte position %d\n", runeValue, index)
+		if runeValue >= 'A' && runeValue <= 'Z' {
+			if index > 0 {
+				out += "_"
+			}
+			out += string(runeValue - 'A' + 'a')
+		} else {
+			out += string(runeValue)
+		}
+	}
+	return out
+}
+
 func (r *OpenAPIv3Reflector) formatFieldName(field protoreflect.FieldDescriptor) string {
 	if *r.conf.Naming == "proto" {
 		return string(field.Name())
 	}
 
-	return field.JSONName()
+	// The JSON name is already converted to camel case, except where explicitly set.
+	if *r.conf.CamelCase {
+		return field.JSONName()
+	}
+
+	// This will be wrong for explicitly set JSON names that are not already in snake case.
+	// Unfortunately, the flag to check if the JSON name has been explicitly set is wrong, so there's no better option.
+	return camelCaseToSnakeCase(field.JSONName())
 }
 
 // fullMessageTypeName builds the full type name of a message.

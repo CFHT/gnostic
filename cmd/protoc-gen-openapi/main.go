@@ -40,6 +40,7 @@ func main() {
 		OutputMode:      flags.String("output_mode", "merged", `output generation mode. By default, a single openapi.yaml is generated at the out folder. Use "source_relative' to generate a separate '[inputfile].openapi.yaml' next to each '[inputfile].proto'.`),
 		Int64AsString:   flags.Bool("int64_as_string", true, `serialize 64-bit integer types as string. If false, will serialize as integer which is incompatible with the official proto JSON serialization.`),
 		KeepWrapped:     flags.Bool("keep_wrapped", false, `serialize wrapped types as-is. If true, will serialize in a way incompatible with the official proto JSON serialization.`),
+		CamelCase:       flags.Bool("camel_case", false, `convert field names to camel case. This was previously combined with the "json" value for the "naming" flag`),
 	}
 
 	opts := protogen.Options{
