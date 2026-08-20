@@ -17,6 +17,7 @@ package generator
 
 import (
 	"strings"
+	"unicode"
 
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
@@ -61,4 +62,41 @@ func getValueKind(message protoreflect.MessageDescriptor) string {
 func getValueField(message protoreflect.MessageDescriptor) protoreflect.FieldDescriptor {
 	fields := message.Fields()
 	return fields.ByName("value")
+}
+
+// Copied in from generate-gnostic/generate-compiler.go
+// Returns a "snake case" form of a camel-cased string.
+func camelCaseToSnakeCase(input string) string {
+	out := ""
+	for index, runeValue := range input {
+		//fmt.Printf("%#U starts at byte position %d\n", runeValue, index)
+		if runeValue >= 'A' && runeValue <= 'Z' {
+			if index > 0 {
+				out += "_"
+			}
+			out += string(runeValue - 'A' + 'a')
+		} else {
+			out += string(runeValue)
+		}
+	}
+	return out
+}
+
+// Copied in from generate-gnostic/generate-compiler.go
+func snakeCaseToCamelCase(input string) string {
+	out := ""
+
+	words := strings.Split(input, "_")
+
+	for i, word := range words {
+		if (i > 0) && len(word) > 0 {
+			w := []rune(word)
+			w[0] = unicode.ToUpper(w[0])
+			out += string(w)
+		} else {
+			out += word
+		}
+	}
+
+	return out
 }

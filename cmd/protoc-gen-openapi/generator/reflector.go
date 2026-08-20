@@ -86,24 +86,6 @@ func (r *OpenAPIv3Reflector) formatMessageName(message protoreflect.MessageDescr
 	return name
 }
 
-// Copied in from generate-gnostic/generate-compiler.go
-// Returns a "snake case" form of a camel-cased string.
-func camelCaseToSnakeCase(input string) string {
-	out := ""
-	for index, runeValue := range input {
-		//fmt.Printf("%#U starts at byte position %d\n", runeValue, index)
-		if runeValue >= 'A' && runeValue <= 'Z' {
-			if index > 0 {
-				out += "_"
-			}
-			out += string(runeValue - 'A' + 'a')
-		} else {
-			out += string(runeValue)
-		}
-	}
-	return out
-}
-
 func (r *OpenAPIv3Reflector) formatFieldName(field protoreflect.FieldDescriptor) string {
 	if *r.conf.Naming == "proto" {
 		return string(field.Name())
@@ -114,9 +96,25 @@ func (r *OpenAPIv3Reflector) formatFieldName(field protoreflect.FieldDescriptor)
 		return field.JSONName()
 	}
 
-	// This will be wrong for explicitly set JSON names that are not already in snake case.
-	// Unfortunately, the flag to check if the JSON name has been explicitly set is wrong, so there's no better option.
-	return camelCaseToSnakeCase(field.JSONName())
+	// The HasJSONName method does not work here as documented.
+	// Instead, the hacky process to return the non-camel-case name below:
+
+	snakeCaseJSON := camelCaseToSnakeCase(field.JSONName())
+	if snakeCaseJSON == field.JSONName() || snakeCaseJSON == string(field.Name()) {
+		// If the snake case JSON name matches the JSON name, it is probably explicitly set from json_name
+		// If the snake case JSON name matches the field name, it is probably implicitly set from the actual name
+		return snakeCaseJSON
+	}
+
+	// This section is here just out of caution
+	camelCase := snakeCaseToCamelCase(string(field.Name()))
+	if camelCase == field.JSONName() {
+		// If the JSON name matches camel case field name, it was probably implicitly set from the actual name
+		return string(field.Name())
+	}
+
+	// Otherwise, the JSON name has been most likely been explicitly set
+	return field.JSONName()
 }
 
 // fullMessageTypeName builds the full type name of a message.
